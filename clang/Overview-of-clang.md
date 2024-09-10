@@ -65,7 +65,7 @@ Preprocessor -> Frontend
 ```
   ||Preprocessor & Lexer|| -> 'Tokens' -> ||Parser|| -> ||Sema|| -> 'AST' -> ||CodeGen|| -> 'LLVM IR'
 ```
-
+--------
 - Lexer
 --------
 
@@ -166,6 +166,7 @@ PP.Lex(Tok);
 - First entry point to parsing is ParseAST, where it starts to parse tokens.
 
 
+-------
 - Sema
 -------
 
@@ -174,7 +175,7 @@ PP.Lex(Tok);
 - Checks program validity.
     - If correct generate AST.
     - If incorrect report errors and warnings using clang Diagnostics.
-
+-------
 - DiagnosƟcs subsystem
 -----------------------
 
@@ -218,6 +219,7 @@ Diag(IILoc, IsTemplateName ? diag::err_no_template
     - apart from special case like templates, where clang provides functionality to perform some modification.
 
 
+-------------
 - AST Example
 -------------
 
@@ -237,15 +239,19 @@ Diag(IILoc, IsTemplateName ? diag::err_no_template
 13 `-...
 
 ```
+-------------
 
+--------------
 - AST Visitors
 --------------
 
 - RecursiveASTVisitor for visiƟng the full AST.
 - StmtVisitor for visiƟng Stmt and Expr.
 - TypeVisitor for visiƟng Type hierarchy.
+--------------
 
 
+---------
 - CodeGen
 ---------
 
@@ -255,4 +261,4 @@ Diag(IILoc, IsTemplateName ? diag::err_no_template
   Emits global and some shared enƟƟes.
 - CodeGenFunction class keeps per funcƟon state.
   Emits LLVM IR for funcƟon body statements.
-
+---------
