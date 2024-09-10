@@ -65,3 +65,69 @@ Preprocessor -> Frontend
 ```
   ||Preprocessor & Lexer|| -> 'Tokens' -> ||Parser|| -> ||Sema|| -> 'AST' -> ||CodeGen|| -> 'LLVM IR'
 ```
+
+- Lexer
+--------
+
+- Converts input program into sequence of tokens.
+    - Performance-criƟcal.
+        -Also handles preprocessing.
+        - Various “fast paths” for e.g. skipping through #if 0 blocks, MultipleIncludeOpt, …
+- Supports tentaƟve parsing.
+
+- Lexer Example
+
+
+```lex
+1        int factorial(int n) {
+2        if (n <= 1)
+3        return 1;
+4        return n * factorial(n - 1);
+5        }
+
+1        > clang -c -Xclang -dump-tokens factorial.c
+
+2        int 'int' [StartOfLine] Loc=<factorial.c:1:1>
+3        identifier 'factorial' [LeadingSpace] Loc=<factorial.c:1:5>
+4        l_paren '(' Loc=<factorial.c:1:14>
+5        int 'int' Loc=<factorial.c:1:15>
+6        identifier 'n' [LeadingSpace] Loc=<factorial.c:1:19>
+7        r_paren ')' Loc=<factorial.c:1:20>
+8        l_brace '{' [LeadingSpace] Loc=<factorial.c:1:22>
+9        if 'if' [StartOfLine] [LeadingSpace] Loc=<factorial.c:2:3>
+10       l_paren '(' [LeadingSpace] Loc=<factorial.c:2:6>
+11       identifier 'n' Loc=<factorial.c:2:7>
+12       lessequal '<=' [LeadingSpace] Loc=<factorial.c:2:9>
+13       numeric_constant '1' [LeadingSpace] Loc=<factorial.c:2:12>
+14       r_paren ')' Loc=<factorial.c:2:13>
+15       ...
+```
+
+- Lexer Internals
+
+    - Tokens declared in include/clang/Basic/TokenKinds.def
+```
+...
+KEYWORD(if , KEYALL)
+KEYWORD(inline , KEYC99|KEYCXX|KEYGNU)
+KEYWORD(int , KEYALL)
+...
+```
+
+    - Token is consumed by include/clang/Parse/Parser.h
+
+```
+SourceLocation ConsumeToken() {
+...
+PP.Lex(Tok);
+...
+}
+bool TryConsumeToken(tok::TokenKind Expected) {
+if (Tok.isNot(Expected))
+return false;
+PP.Lex(Tok);
+...
+```
+
+
+
